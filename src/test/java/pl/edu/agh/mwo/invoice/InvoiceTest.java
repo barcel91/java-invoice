@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.edu.agh.mwo.invoice.Invoice;
 import pl.edu.agh.mwo.invoice.product.DairyProduct;
 import pl.edu.agh.mwo.invoice.product.OtherProduct;
 import pl.edu.agh.mwo.invoice.product.Product;
@@ -125,24 +124,53 @@ public class InvoiceTest {
     public void testAddingNullProduct() {
         invoice.addProduct(null);
     }
-    }
-
+//==================================
 
     @Test
-    public void testInvoiceHavehumber() {
+    public void testInvoiceHaveNumber() {
         int number = invoice.getNumber();
-        Assert.assertThat(number > 0);
+        Assert.assertThat(number, Matchers.greaterThan(0));
     }
 
-    @Test //ten jest ok, działa
+    @Test
     public void  testInvoiceHaveDifferentNumber() {
         Invoice invoice1 = new Invoice();
         Invoice invoice2 = new Invoice();
         Assert.assertNotEquals(invoice1.getNumber(), invoice2.getNumber());
-
     }
 
+// test drukowania
     @Test
-    public void  testInvoiceHaveConsequestNumbers() {
+    public void testPrintInvoice() {
+        Invoice invoice1 = new Invoice();
+
+        invoice1.addProduct(new TaxFreeProduct("Chleb", new BigDecimal("2.50")), 2);
+        invoice1.addProduct(new DairyProduct("Serek wiejski", new BigDecimal("5.00")), 3);
+        invoice1.addProduct(new OtherProduct("Woda mineralna", new BigDecimal("1.50")), 5);
+
+        System.out.println(invoice1.printInvoice());
+    }
+
+//test duplikatów
+
+    @Test
+    public void testDoubleProducts() {
+        Invoice invoice1 = new Invoice();
+
+        Product doubleProduct = new TaxFreeProduct("Chleb", new BigDecimal("2.50"));
+
+        invoice1.addProduct(doubleProduct, 5);
+        invoice1.addProduct(doubleProduct, 2);
+
+        Assert.assertEquals(7, invoice1.getPositionsCount());
+
+        Assert.assertThat(new BigDecimal("17.50"),
+                Matchers.comparesEqualTo(invoice1.getNetTotal()));
+
+        String out = invoice1.printInvoice();
+        System.out.println(out);
+        Assert.assertTrue(out.contains("Chleb | 7 szt."));
+    }
+
 
 }

@@ -3,7 +3,6 @@ package pl.edu.agh.mwo.invoice;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import pl.edu.agh.mwo.invoice.product.Product;
 
@@ -14,11 +13,29 @@ public class Invoice {
         addProduct(product, 1);
     }
 
+//    public void addProduct(Product product, Integer quantity) {
+//        if (product == null || quantity <= 0) {
+//            throw new IllegalArgumentException();
+//        }
+//        products.put(product, quantity);
+//    }
+
     public void addProduct(Product product, Integer quantity) {
+
         if (product == null || quantity <= 0) {
             throw new IllegalArgumentException();
         }
-        products.put(product, quantity);
+
+        if (products.containsKey(product)) {
+
+            int currentQuantity = products.get(product);
+
+            products.put(product, currentQuantity + quantity);
+
+        } else {
+
+            products.put(product, quantity);
+        }
     }
 
     public BigDecimal getNetTotal() {
@@ -48,9 +65,54 @@ public class Invoice {
     private int number;
 
     public Invoice() {
-        this.number = NUMBER += 1;    }
+        this.number = NUMBER += 1;
+    }
 
     public int getNumber() {
         return number;
     }
+
+    public String printInvoice() {
+
+        StringBuilder text = new StringBuilder();
+
+        text.append("Numer faktury: ")
+                .append(getNumber())
+                .append("\n");
+
+        for (Product p : products.keySet()) {
+
+            int quantity = products.get(p);
+
+            text.append(p.getName())
+                    .append(" | ")
+                    .append(quantity)
+                    .append(" szt. | ")
+                    .append(p.getPrice())
+                    .append(" pln\n");
+        }
+
+        text.append("Ilość pozycji na fakturze: ")
+                .append(getPositionsCount())
+                .append("\n");
+
+        text.append("Suma brutto wszystkich produktów: ")
+                .append(getGrossTotal())
+                .append(" pln\n")
+                .append("-----------------------------------------------------\n");
+
+        return text.toString();
+    }
+
+    public int getPositionsCount() {
+
+        int sum = 0;
+
+        for (int qty : products.values()) {
+            sum += qty;
+        }
+
+        return sum;
+    }
+
 }
